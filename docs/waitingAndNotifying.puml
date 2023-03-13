@@ -1,0 +1,11 @@
+@startuml
+state Threads {
+ReadyToRun -down-> Running : Scheduling
+Running -left-> ReadyToRun : Scheduling
+
+Running -right-> WaitingForNotification : objecRef1.wait()
+WaitingForNotification -right-> BlockedForLockAcquisition
+BlockedForLockAcquisition -left-> ReadyToRun : Lock Acquired
+}
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+participant Thread1
+participant SharedObject [
+    =SharedObject
+    ----
+    <<Object>>
+    wait()
+    notify()
+    ...
+    <<anyRefType>>
+    ...
+]
+
+activate Thread1
+Thread1 -> SharedObject : <<lock acquired>>
+Thread1 -> SharedObject : wait()
+note left: Lock is released by Thread1
+deactivate Thread1
+participant Thread2
+activate Thread2
+Thread2 -> SharedObject : <<lock acquired>>
+Thread2 -> SharedObject : notify()
+note left: Thread1 is waiting to be notified
+SharedObject -> Thread1 : <<notified>>
+note left: Lock is not released by Thread2
+Thread2 -> SharedObject : <<lock released>>
+deactivate Thread2
+Thread1 -> SharedObject : <<lock acquired>>
+note left: Thread1 is waiting to acquire lock
+activate Thread1
+deactivate Thread1
+@enduml

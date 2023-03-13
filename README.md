@@ -825,3 +825,39 @@ It is just an advisory method to the JVM.
 
 ![image](https://user-images.githubusercontent.com/27693622/224673835-ed6c746c-5239-4cfc-9e5d-dad1286717e6.png)
 
+Waiting and notifying:
+![image](https://user-images.githubusercontent.com/27693622/224675223-bac1988e-a000-4c40-b536-d516815487ee.png)
+
+This diagram shows the process of threads waiting for locks:
+![image](https://user-images.githubusercontent.com/27693622/224680051-e325d203-63b9-4af4-9811-4fa29c301aac.png)
+
+### Waiting and Notifying
+A thread in the Waiting-for-notification state can be awakened by the occurrence of any one of these three incidents:
+- Another thread invokes the notify() method on the object of the waiting thread,
+and the waiting thread is selected as the thread to be awakened.
+- The waiting thread times out
+- Another thread interrupts the waiting thread
+
+### Notify
+- Invoking the notify() method on an object wakes up a single thread that is waiting for the lock of this object
+- The selection of a thread to awaken is dependent on the thread policies implemented by the JVM
+- On being notified, a waiting thread first transits to the Blocked-for-lock acquisition state to acquire the
+lock on the object, and not directly to the Ready-to-Run state
+- The thread is removed from the wait set of the object
+
+### Important methods:
+- final void wait(long timeout) throws InterruptedException
+- final void wait(long timeout, int nanos) throws InterruptedException
+- final void wait() throws InterruptedException
+- final void notify()
+- final void notifyAll()
+
+#### Timed Out
+- The wait() call specified the time the thread should wait before being timed out,
+if it was not awakened by being notified
+- The awakened thread competes in the usual manner to execute again
+- The awakened thread has no way of knowing whether it was timed out
+or woken up by one of the notification methods
+
+
+
