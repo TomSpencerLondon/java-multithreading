@@ -756,3 +756,63 @@ Thread states Thread.State
 |  WAITING  | Waiting for notify, Blocked for join completion  | Waiting indefinitely for another thread to perform a particular action |
 |  TIMED_WAITING  | Sleeping, waiting for notify, Blocked for join completion  | Waiting for another thread to perform an action for up to a specified time. |
 |  TERMINATED  | Dead | Completed execution |
+
+```java
+public class ThreadTester3 {
+    public static void main(String[] args) {
+        Thread states = new Thread(() -> {
+            try {
+                Thread.sleep(1);
+                for (int i = 1000; i > 0; i--) {
+
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, "States");
+
+        states.start();
+
+        while (true) {
+            Thread.State state = states.getState();
+            System.out.println(state);
+            if (state == Thread.State.TERMINATED) {
+                break;
+            }
+        }
+    }
+}
+
+```
+
+This prints the following states:
+```bash
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+RUNNABLE
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TERMINATED
+```
+
