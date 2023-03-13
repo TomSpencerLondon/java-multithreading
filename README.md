@@ -859,5 +859,32 @@ if it was not awakened by being notified
 - The awakened thread has no way of knowing whether it was timed out
 or woken up by one of the notification methods
 
+### Interrupted
+- Another thread invoked the interrupt() method on the waiting thread
+- The awakened thread is enabled, but the return from the wait() call will result in an InterruptedException
+if and when the awakened thread finally gets a chance to run.
+- The code invoking the wait() method must be prepared to handle this checked exception
 
+### Thread running with main (join())
 
+```java
+public class ThreadTester4 {
+    public static void main(String[] args) {
+        Thread thread = new Thread(() -> {
+            System.out.println(Thread.currentThread());
+        }, "Our thread");
+        
+        thread.start();
+
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("main is existing");
+    }
+}
+```
+
+This blocks the main method to wait for child threads before running rest of main.
