@@ -745,3 +745,14 @@ control the capacity of the queue.
 
 When thread is running you can call Thread.sleep(); this ensures the thread goes into non-runnable state. It still does not
 release the lock.
+
+### Thread States
+Thread states Thread.State
+
+| enum type | state | Description of thread   |
+|:---------:|:----:|:--:|
+|  NEW  | New  | Created but not yet started |
+|  BLOCKED  | Runnable  | Blocked while waiting for a lock |
+|  WAITING  | Waiting for notify, Blocked for join completion  | Waiting indefinitely for another thread to perform a particular action |
+|  TIMED_WAITING  | Sleeping, waiting for notify, Blocked for join completion  | Waiting for another thread to perform an action for up to a specified time. |
+|  TERMINATED  | Dead | Completed execution |
