@@ -599,3 +599,30 @@ Pushed: true
 Popped: 100
 Popped: 100
 ```
+
+### Synchronized Methods:
+- While a thread is inside a synchronized method of an object all other threads that wish to execute this synchronized method or any other syncrhonized method
+of the object will have to waite
+- This restriction does not apply to the method that already has the lock and is executing a syncrhonized method of the object
+- Such a method can invoke other syncrhonized methods of the object without being blocked
+- The non-syncrhonized methods of the object can always be called at any time by any thread
+
+### Rules of synchronization
+- A thread must acquire the object lock associated with a shared resource before it can enter the shared resource
+- The runtime system ensures that no other thread can enter a shard resource if another thread already holds the object lock associated with it
+- If a thread cannot immediately acquire the object lock, it is blocked, i.e., it must wait for the lock to become available
+- When a thread exits a shared resource, the runtime system ensures that the object lock is also relinquished. If another thread is waiting for this object
+lock it can try to acquire the lock in order to gain access to the shared resource.
+- It should be made clear that programs should not make any assumptions about the order in which threads are granted ownership of the lock
+
+The sleep method ```Thread.sleep(1000);``` in the code above increases the chance of corrupted threads.
+
+### Static Synchronized Methods
+- A thread acquiring the lock of a class to execute a static synchronized method has no effect on any thread acquiring the lock on any object of the class
+to execute a syncrhonized instance method.
+- In other words, synchronization of static methods in a class is independent of the synchronization of instance methods on objects of the class.
+- A subclass decides whether the new definition of an inherited synchronized method will remain synchronized in the subclass
+
+### What is a race condition?
+It occurs when two more threads simultaneously update the same value (stackTopIndex) and, as a consequence, leave the value in an undefined or
+inconsistent state
