@@ -681,3 +681,67 @@ public class TVSet {
 }
 
 ```
+The TVSet is synchronized and the instance status refers to the RAM through the keyword volatile. This avoids an instance being created which would
+violate the singleton design principle.
+
+![image](https://user-images.githubusercontent.com/27693622/224661841-1ebddd6a-98a3-4974-8b39-624971e6b4f4.png)
+
+```java
+public class BlockingQueue {
+    private Queue<Integer> queue;
+
+    int capacity;
+
+    private BlockingQueue(int capacity) {
+        this.capacity = capacity;
+        this.queue = new LinkedList<>();
+    }
+
+    public boolean add(int item) {
+        synchronized (queue) {
+            while (queue.size() == capacity) {
+                try {
+                    queue.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            queue.add(item);
+            queue.notifyAll();
+
+            return true;
+        }
+    }
+
+    public int remove() {
+        synchronized (queue) {
+            while (queue.size() == 0) {
+                // do something
+                try {
+                    queue.wait();
+
+
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            int element = queue.poll();
+            queue.notifyAll();
+            return element;
+        }
+    }
+}
+```
+
+We use a while loop to ensure that adder1 and adder2 can continue to check the condition. This allows the capacity variable to
+control the capacity of the queue.
+
+### Thread States
+
+![image](https://user-images.githubusercontent.com/27693622/224662735-7663ee42-6566-45dc-a39a-bd4f7c2dfb87.png)
+
+When thread is running you can call Thread.sleep(); this ensures the thread goes into non-runnable state. It still does not
+release the lock.
