@@ -185,5 +185,21 @@ public class Main {
     }
 }
 ```
+Runnable:
+![image](https://user-images.githubusercontent.com/27693622/224640494-a21c94a4-ce9e-492d-ae42-f2c09dd3bb36.png)
+Thread:
+![image](https://user-images.githubusercontent.com/27693622/224640733-99457a60-859f-4cd4-a431-3ee9babeb8e9.png)
+
+
+### Synchronization
+- Threads share the same memory space, i.e. they can share resources (objects)
+- However, there are critical situations where it is desirable that only one thread at a time has access to a shared resource
+
+![image](https://user-images.githubusercontent.com/27693622/224641072-7a4ec888-dc16-463f-a509-10a56120d682.png)
+
+This is how we can have a race condition.
+
+
+
 
 
