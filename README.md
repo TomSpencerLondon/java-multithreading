@@ -626,3 +626,58 @@ to execute a syncrhonized instance method.
 ### What is a race condition?
 It occurs when two more threads simultaneously update the same value (stackTopIndex) and, as a consequence, leave the value in an undefined or
 inconsistent state
+
+### Synchronized blocks
+- Whereas execution of syncrhonized methods of an object is syncrhonized on the lock of the object, the synchronized blck allows execution
+of the arbitrary code to be synchronized on the lock of an arbitrary object
+- The general form of the syncrhonized statement is as follows:
+```bash
+synchronized (object ref expression) {
+    // code block
+        }
+```
+- The object ref expression must evaluate to a non-null reference value, otherwise a NullPointerException is thrown
+- This object ref is analogous to a synchronized method
+
+### Summary
+A thread can hold a lock on an object:
+- By executing a synchronized instance method of the object (this)
+- By executing the body of a syncrhonized block that syncrhonizes on the object (this)
+- By executing a syncrhonized static method of a class or a block inside a static method (in which case, the object is the Class object representing
+the class in the JVM)
+
+### Thread safety
+It's the term used to describe the design of classes that ensure that the state of their objects is always consistent, even when the objects are used concurrently
+by multiple threads. E.g. StringBuffer
+
+### Volatile
+The volatile keyword:
+
+![image](https://user-images.githubusercontent.com/27693622/224656072-558ef083-6644-443a-9ba8-5525a44c2362.png)
+
+![image](https://user-images.githubusercontent.com/27693622/224656251-e28156cc-14c5-4f75-a60f-1267244e6c28.png)
+
+If a value is updated the status of the flag is read from the RAM as opposed to the cache.
+
+```java
+public class TVSet {
+    private static volatile TVSet tvSet = null;
+    
+    private TVSet() {
+        System.out.println("TV set instantiated");
+    }
+    
+    public static TVSet getTvSet() {
+        if (tvSet == null) {
+            synchronized (TVSet.class) {
+                if (tvSet == null) {
+                    tvSet = new TVSet();
+                }
+            }
+        }
+        
+        return tvSet;
+    }
+}
+
+```
