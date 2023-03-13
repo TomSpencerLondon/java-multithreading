@@ -1,0 +1,9 @@
+@startuml
+state ThreadJoining {
+ReadyToRun --> Running : Scheduling
+Running --> ReadyToRun : Scheduling
+Running -right-> BlockedForJoinCompletion : t2.join()
+BlockedForJoinCompletion -left-> ReadyToRun : Join Completed \n Time elapsed \n Thread interrupted
+}
+
+@enduml

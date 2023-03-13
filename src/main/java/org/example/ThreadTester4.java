@@ -15,6 +15,8 @@ public class ThreadTester4 {
             throw new RuntimeException(e);
         }
 
+        System.out.println(thread.getPriority());
+
         System.out.println("main is exiting");
     }
 }

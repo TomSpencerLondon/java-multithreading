@@ -1,0 +1,14 @@
+@startuml
+Thread1 -> O1 : <<lock acquired>>
+activate Thread1
+Thread2 -> O2 : <<lock acquired>>
+activate Thread2
+Thread1 -> O2 : <<cannot acquire lock>>
+Thread2 -> O1 : <<cannot acquire lock>>
+deactivate Thread2
+deactivate Thread1
+participant Thread2
+
+note left of Thread1: Thread1 now waiting to acquire lock on O2
+note right of Thread2: Thread2 now waiting to acquire lock on O1
+@enduml

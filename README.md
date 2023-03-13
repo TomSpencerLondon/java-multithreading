@@ -888,3 +888,117 @@ public class ThreadTester4 {
 ```
 
 This blocks the main method to wait for child threads before running rest of main.
+
+![image](https://user-images.githubusercontent.com/27693622/224685752-34b12a3f-2f36-4d01-984d-ba0d4760499b.png)
+
+### Thread Priority
+- Threads are assigned priorities that the thread scheduler can use to determine how the threads will be scheduled
+- The thread scheduler uses priorities to decide which thread to run
+- Priorities are integer values from 1 (lowest priority given by the constant Thread.MIN_PRIORITY) to 10
+  (highest priority given by the constant Thread.MAX_PRIORITY).
+The default priority is 5 (Thread.NORM_PRIORITY)
+- The thread inherits the priority of its parent thread
+- The priority of a thread can set using the setPriority() method and read using the getPriority() method,
+both of which are defined in the Thread class.
+- The setPriority() method is an advisory method, meaning that it provides a hint from the
+program to the JVM, which the JVM is in no way obliged to honor.
+
+### Thread Scheduler:
+- Schedulers in JVM implementations usually employ one of 2 strategies
+1. Preemptive scheduling
+2. Time spaced round-robin scheduling
+
+### Deadlocks
+- A deadlock is a situation where a thread is waiting for an object lock that another thread holds,
+and this second thread is waiting for an object lock that the first thread holds
+- Since each thread is waiting for the other thread to relinquish a lock, they both remain waiting forever in the Blocked-for-lock-acquisition state
+- The threads are said to be deadlocked
+
+![image](https://user-images.githubusercontent.com/27693622/224690295-79fd861b-060b-4608-928b-aa0b012093b2.png)
+
+### Deadlock situation:
+```java
+
+public class ThreadTester5 {
+
+    public static void main(String[] args) {
+        String lock1 = "lock1";
+        String lock2 = "lock2";
+
+        Thread thread1 = new Thread(() -> {
+            synchronized (lock2) {
+
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                synchronized (lock1) {
+                    System.out.println("lock acquired");
+                }
+            }
+        }, "thread1");
+
+        Thread thread2 = new Thread(() -> {
+            synchronized (lock1) {
+
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                synchronized (lock2) {
+                    System.out.println("lock acquired");
+                }
+            }
+        }, "thread2");
+
+        thread1.start();
+        thread2.start();
+    }
+}
+
+```
+
+This is a fixed version:
+```java
+public class ThreadTester5 {
+
+    public static void main(String[] args) {
+        String lock1 = "lock1";
+        String lock2 = "lock2";
+
+        Thread thread1 = new Thread(() -> {
+            synchronized (lock1) {
+
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                synchronized (lock2) {
+                    System.out.println("lock acquired");
+                }
+            }
+        }, "thread1");
+
+        Thread thread2 = new Thread(() -> {
+            synchronized (lock1) {
+
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                synchronized (lock2) {
+                    System.out.println("lock acquired");
+                }
+            }
+        }, "thread2");
+
+        thread1.start();
+        thread2.start();
+    }
+}
+
+```
