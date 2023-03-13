@@ -72,7 +72,8 @@ public class Thread1 extends Thread {
 public class Main {
     public static void main(String[] args) {
         System.out.println("main is starting");
-        Thread1 thread1 = new Thread1();
+        Thread1 thread1 = new Thread1("thread1");
+//        thread1.setDaemon(true);
         thread1.start();
 
 
@@ -85,10 +86,70 @@ The order is random:
 ```bash
 main is starting
 main is exiting
-inside thread1 0
-inside thread1 1
-inside thread1 2
-inside thread1 3
-inside thread1 4
+inside thread1 thread10
+inside thread1 thread11
+inside thread1 thread12
+inside thread1 thread13
+inside thread1 thread14
 ```
 
+
+Add Runnable thread:
+
+```java
+public class Thread2 implements Runnable {
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 5; i++) {
+            System.out.println(Thread.currentThread() + ", " + i);
+        }
+    }
+}
+```
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("main is starting");
+        Thread thread1 = new Thread1("thread1");
+//        thread1.setDaemon(true);
+        thread1.start();
+
+        Thread thread2 = new Thread(new Thread2(), "thread2");
+
+        thread2.start();
+
+        System.out.println("main is exiting");
+
+    }
+}
+```
+
+```bash
+main is starting
+main is exiting
+Thread[#22,thread2,5,main], 0
+Thread[#22,thread2,5,main], 1
+Thread[#22,thread2,5,main], 2
+Thread[#22,thread2,5,main], 3
+Thread[#22,thread2,5,main], 4
+inside thread1 thread10
+inside thread1 thread11
+inside thread1 thread12
+inside thread1 thread13
+inside thread1 thread14
+```
+JVM decides when to execute the threads. The run() method in the Thread class does nothing:
+```java
+public class Thread implements Runnable {
+    @Override
+    public void run() {
+        Runnable task = holder.task;
+        if (task != null) {
+            task.run();
+        }
+    }
+}
+```
+We pass a Thread class to the Thread class to ensure that it runs the run() method.
