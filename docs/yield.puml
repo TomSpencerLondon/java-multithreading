@@ -1,0 +1,9 @@
+@startuml
+state Threads {
+ReadyToRun -left-> Running : Scheduling
+Running -left-> ReadyToRun : Scheduling
+
+Running -right-> ReadyToRun : yield()
+}
+
+@enduml

@@ -816,3 +816,12 @@ TIMED_WAITING
 TERMINATED
 ```
 
+### Running and Yielding
+
+![image](https://user-images.githubusercontent.com/27693622/224672941-e9e825e9-fc2d-44d8-923f-8f642cc5714f.png)
+
+Yield method puts the thread that was running into the regular run state to give the Thread chance to run.
+It is just an advisory method to the JVM.
+
+![image](https://user-images.githubusercontent.com/27693622/224673835-ed6c746c-5239-4cfc-9e5d-dad1286717e6.png)
+

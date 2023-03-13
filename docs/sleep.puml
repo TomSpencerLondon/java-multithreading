@@ -1,0 +1,9 @@
+@startuml
+state Threads {
+ReadyToRun --> Running : Scheduling
+Running --> ReadyToRun : Scheduling
+Running -right-> Sleeping : sleep()
+Sleeping -left-> ReadyToRun : Time elapsed Thread interrupted
+}
+
+@enduml
