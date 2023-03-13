@@ -150,6 +150,40 @@ public class Thread implements Runnable {
             task.run();
         }
     }
+
+    public void start() {
+        synchronized (this) {
+            // zero status corresponds to state "NEW".
+            if (holder.threadStatus != 0)
+                throw new IllegalThreadStateException();
+            start0();
+        }
+    }
+
 }
 ```
 We pass a Thread class to the Thread class to ensure that it runs the run() method.
+Extending the Thread class means you can't extend further classes. If you use the Runnable interface you have the option of extending
+other classes. Most developers implement Runnable - because this allows more freedom to our design.
+We can also use a lambda to implement the Runnable interface:
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("main is starting");
+        Thread thread2 = new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                System.out.println(Thread.currentThread() + ", " + i);
+            }
+        }, "thread2");
+
+        thread2.start();
+
+        System.out.println("main is exiting");
+
+        new Thread().run();
+
+    }
+}
+```
+
+

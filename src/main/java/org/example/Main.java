@@ -3,11 +3,11 @@ package org.example;
 public class Main {
     public static void main(String[] args) {
         System.out.println("main is starting");
-        Thread thread1 = new Thread1("thread1");
-//        thread1.setDaemon(true);
-        thread1.start();
-
-        Thread thread2 = new Thread(new Thread2(), "thread2");
+        Thread thread2 = new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                System.out.println(Thread.currentThread() + ", " + i);
+            }
+        }, "thread2");
 
         thread2.start();
 
