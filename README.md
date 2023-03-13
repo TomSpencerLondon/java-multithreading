@@ -199,7 +199,403 @@ Thread:
 
 This is how we can have a race condition.
 
+We can look at this with a stack class:
+```java
+public class Stack {
+    private int[] array;
+    private int stackTop;
 
+    public Stack(int capacity) {
+        array = new int[capacity];
+        stackTop = -1;
+    }
 
+    public boolean isEmpty() {
+        return stackTop < 0;
+    }
 
+    public boolean isFull() {
+        return stackTop >= array.length - 1;
+    }
 
+    public boolean push(int element) {
+        if (isFull()) {
+            return false;
+        }
+        ++stackTop;
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        array[stackTop] = element;
+
+        return true;
+    }
+
+    public int pop() {
+        if (isEmpty()) {
+            return Integer.MIN_VALUE;
+        }
+
+        int result = array[stackTop];
+        array[stackTop] = Integer.MIN_VALUE;
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        stackTop--;
+        return result;
+    }
+}
+```
+The code is used and can break:
+```java
+public class ThreadTester2 {
+    public static void main(String[] args) {
+        Stack stack = new Stack(5);
+
+        new Thread(() -> {
+            int counter = 0;
+            while (counter++ < 10) {
+                System.out.println("Pushed: " + stack.push(100));
+            }
+        }, "Pusher").start();
+
+        new Thread(() -> {
+            int counter = 0;
+            while (counter++ < 10) {
+                System.out.println("Popped: " + stack.pop());
+            }
+        }, "Popper").start();
+
+        System.out.println("main is exiting");
+    }
+}
+
+```
+The state of the class runs inconsistently:
+```bash
+main is exiting
+Popped: 0
+Popped: -2147483648
+Popped: -2147483648
+Popped: -2147483648
+Popped: -2147483648
+Popped: -2147483648
+Popped: -2147483648
+Popped: -2147483648
+Popped: -2147483648
+Popped: -2147483648
+Pushed: true
+Pushed: true
+Pushed: true
+Pushed: true
+Pushed: true
+Pushed: true
+Pushed: false
+Pushed: false
+Pushed: false
+Pushed: false
+
+```
+When two threads are running, the stack class causes problems. We need to ensure that the push() and pop() methods which change
+the state of the objects are not changing the state inconsistently. We have to devise methodology so that the action is accessed by only
+one thread at a time. We should only allow one thread at a time. To do this we can add locks so that the JVM scheduling algorithm can 
+decide which thread to run.
+
+Now both methods in Stack are bound by the same object:
+```java
+public class Stack {
+    private int[] array;
+    private int stackTop;
+
+    Object lock;
+    public Stack(int capacity) {
+        array = new int[capacity];
+        stackTop = -1;
+        
+        lock = new Object();
+    }
+
+    public boolean isEmpty() {
+        return stackTop < 0;
+    }
+
+    public boolean isFull() {
+        return stackTop >= array.length - 1;
+    }
+
+    // t1, t2, t3
+    public boolean push(int element) {
+        synchronized(lock) {
+            if (isFull()) {
+                return false;
+            }
+            ++stackTop;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            array[stackTop] = element;
+
+            return true;
+        }
+
+    }
+
+    // t1, t4, t5
+    public int pop() {
+        synchronized(lock) {
+            if (isEmpty()) {
+                return Integer.MIN_VALUE;
+            }
+
+            int result = array[stackTop];
+            array[stackTop] = Integer.MIN_VALUE;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            stackTop--;
+            return result;
+        }
+        
+    }
+}
+
+```
+Binding by two objects one for each method allows the other thread to access the functions in parallel:
+```java
+public class Stack {
+    private int[] array;
+    private int stackTop;
+
+    Object lock1;
+    Object lock2;
+    public Stack(int capacity) {
+        array = new int[capacity];
+        stackTop = -1;
+        
+        lock1 = new Object();
+        lock2 = new Object();
+    }
+
+    public boolean isEmpty() {
+        return stackTop < 0;
+    }
+
+    public boolean isFull() {
+        return stackTop >= array.length - 1;
+    }
+
+    // t1, t2, t3
+    public boolean push(int element) {
+        synchronized(lock1) {
+            if (isFull()) {
+                return false;
+            }
+            ++stackTop;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            array[stackTop] = element;
+
+            return true;
+        }
+
+    }
+
+    // t1, t4, t5
+    public int pop() {
+        synchronized(lock2) {
+            if (isEmpty()) {
+                return Integer.MIN_VALUE;
+            }
+
+            int result = array[stackTop];
+            array[stackTop] = Integer.MIN_VALUE;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            stackTop--;
+            return result;
+        }
+        
+    }
+}
+```
+This is not good because it would allow the push and pop to be executed at the same time. 
+We therefore want the same lock for push and pop:
+
+```java
+public class Stack {
+    private int[] array;
+    private int stackTop;
+
+    Object lock;
+    public Stack(int capacity) {
+        array = new int[capacity];
+        stackTop = -1;
+        
+        lock = new Object();
+    }
+
+    public boolean isEmpty() {
+        return stackTop < 0;
+    }
+
+    public boolean isFull() {
+        return stackTop >= array.length - 1;
+    }
+
+    // t1, t2, t3
+    public boolean push(int element) {
+        synchronized(lock) {
+            if (isFull()) {
+                return false;
+            }
+            ++stackTop;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            array[stackTop] = element;
+
+            return true;
+        }
+
+    }
+
+    // t1, t4, t5
+    public int pop() {
+        synchronized(lock) {
+            if (isEmpty()) {
+                return Integer.MIN_VALUE;
+            }
+
+            int result = array[stackTop];
+            array[stackTop] = Integer.MIN_VALUE;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            stackTop--;
+            return result;
+        }
+        
+    }
+}
+```
+
+We can also add synchronized to the function:
+```java
+public class Stack {
+    private int[] array;
+    private int stackTop;
+
+    Object lock;
+    public Stack(int capacity) {
+        array = new int[capacity];
+        stackTop = -1;
+        
+        lock = new Object();
+    }
+
+    public boolean isEmpty() {
+        return stackTop < 0;
+    }
+
+    public boolean isFull() {
+        return stackTop >= array.length - 1;
+    }
+
+    // t1, t2, t3
+    public synchronized boolean push(int element) {
+            if (isFull()) {
+                return false;
+            }
+            ++stackTop;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            array[stackTop] = element;
+
+            return true;
+    }
+
+    // t1, t4, t5
+    public synchronized int pop() {
+            if (isEmpty()) {
+                return Integer.MIN_VALUE;
+            }
+
+            int result = array[stackTop];
+            array[stackTop] = Integer.MIN_VALUE;
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            stackTop--;
+            return result;
+    }
+}
+```
+This is the same as wrapping the entire function with ```synchronized(this)```. For all the synchronized methods the lock is the same for every method
+in the class. Only one thread will have access to all syncrhonized methods. 
+
+```bash
+main is exiting
+Pushed: true
+Popped: 100
+Pushed: true
+Popped: 100
+Pushed: true
+Popped: 100
+Pushed: true
+Popped: 100
+Pushed: true
+Popped: 100
+Pushed: true
+Pushed: true
+Popped: 100
+Pushed: true
+Popped: 100
+Pushed: true
+Popped: 100
+Pushed: true
+Popped: 100
+Popped: 100
+```

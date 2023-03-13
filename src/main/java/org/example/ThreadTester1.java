@@ -1,6 +1,6 @@
 package org.example;
 
-public class Main {
+public class ThreadTester1 {
     public static void main(String[] args) {
         System.out.println("main is starting");
         Thread thread2 = new Thread(() -> {
